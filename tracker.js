@@ -52,11 +52,58 @@ const actions = [
       },
       {
         name: "Update Employee Role",
-        value: "update_employee",
+        value: "update_employee_role",
       },
+      {
+        name: "Update Employee Manager",
+        value: "update_employee_manager"
+      },
+      {
+        name: "Quit",
+        value: "quit"
+      }
     ],
   },
 ];
+
+const roles = {
+  name: "role",
+  type: "list",
+  message: "Choose a Role: ",
+  choices: [
+    {
+      name: "Sales Lead",
+      value: 1,
+    },
+    {
+      name: "Salesperson",
+      value: 2,
+    },
+    {
+      name: "Lead Engineer",
+      value: 3,
+    },
+    {
+      name: "Software Engineer",
+      value: 4,
+    },
+    {
+      name: "Account Manager",
+      value: 5,
+    },
+    {
+      name: "Accountant",
+      value: 6,
+    },
+    {
+      name: "Legal Team Lead",
+      value: 7,
+    },
+    {
+      name: "Lawyer",
+      value: 8,
+    }]
+  }
 
 function viewDepartments() {
   const query = `
@@ -110,46 +157,8 @@ function addEmployee() {
       type: "input",
       message: "Last Name: ",
     },
-    {
-      name: "role",
-      type: "list",
-      message: "Choose a Role: ",
-      choices: [
-        {
-          name: "Sales Lead",
-          value: 1,
-        },
-        {
-          name: "Salesperson",
-          value: 2,
-        },
-        {
-          name: "Lead Engineer",
-          value: 3,
-        },
-        {
-          name: "Software Engineer",
-          value: 4,
-        },
-        {
-          name: "Account Manager",
-          value: 5,
-        },
-        {
-          name: "Accountant",
-          value: 6,
-        },
-        {
-          name: "Legal Team Lead",
-          value: 7,
-        },
-        {
-          name: "Lawyer",
-          value: 8,
-        },
-      ],
-    },
-  ];
+      roles
+    ];
 
   inquirer.prompt(employeeQuestions).then((responses) => {
     const query = `
@@ -161,11 +170,45 @@ function addEmployee() {
       [responses.first_name, responses.last_name, responses.role],
       (err, res) => {
         if (err) console.log(err);
-        else console.log("Employee Added!");
+        else console.log("\nEmployee Added!\n");
         init();
       }
     );
   });
+}
+
+function updateEmployeeManager() {
+  const query = `
+  SELECT
+  id, first_name, last_name
+  fROM employee
+  `;
+
+  let employees = [];
+  let employeeChoices = [];
+
+  connection.query(
+    query, (err, res) => {
+      if (err) console.log(err);
+      else {
+        employees = JSON.parse(JSON.stringify(res));
+        employees.forEach(employee => {
+          employeeChoices.push({
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id
+          });
+        });
+        inquirer.prompt({
+          name: "employee",
+          type: "list",
+          message: "Select employee: ",
+          choices: employeeChoices
+        }).then((response) => {
+          console.log(response);
+        });
+      }
+    }
+  )
 }
 
 function init() {
@@ -189,9 +232,14 @@ function init() {
       case "add_employee":
         addEmployee();
         break;
-      case "update_employee":
-        updateEmployee();
+      case "update_employee_role":
+        updateEmployeeRole();
         break;
+      case "update_employee_manager":
+        updateEmployeeManager();
+        break;
+      case "quit":
+        process.exit();
     }
   });
 }
