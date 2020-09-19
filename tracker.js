@@ -75,7 +75,7 @@ function viewDepartments() {
       LEFT JOIN
       employee e
       ON e.role_id = r.id
-      JOIN department d
+      RIGHT JOIN department d
       ON r.department_id = d.id
       GROUP BY d.id, name
     `;
@@ -101,7 +101,7 @@ function viewRoles() {
 function viewEmployees() {
   const query = `
         SELECT
-        emp.id, emp.first_name, emp.last_name, title, FORMAT(salary,0) AS salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+        emp.id, emp.first_name, emp.last_name, title, CONCAT('$', FORMAT(salary,0)) AS salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
         FROM employee AS emp
         JOIN role
         ON emp.role_id = role.id
